@@ -1,6 +1,0 @@
-include versioneer.py
-include delocate/_version.py
-include LICENSE
-include README.rst
-include AUTHORS
-recursive-include delocate/tests/data *

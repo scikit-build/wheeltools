@@ -1,7 +1,0 @@
-*.pyc
-build/
-dist/
-MANIFEST
-.coverage
-delocate*info/
-.cache
