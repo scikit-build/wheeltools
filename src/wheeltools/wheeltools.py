@@ -166,14 +166,12 @@ class InWheelCtx(InWheel):
         return self
 
     def iter_files(self):
-        record_names = glob.glob(
-            os.path.join(self.wheel_path, '*.dist-info/RECORD')
-        )
+        record_names = glob.glob(os.path.join(self.wheel_path, "*.dist-info/RECORD"))
         if len(record_names) != 1:
             raise WheelToolsError("Should be exactly one `*.dist_info` directory")
 
         record_path = record_names[0]
-        with _open_for_csv(record_path, 'r') as record_file:
+        with _open_for_csv(record_path, "r") as record_file:
             reader = csv.reader(record_file)
             for row in reader:
                 filename = row[0]
