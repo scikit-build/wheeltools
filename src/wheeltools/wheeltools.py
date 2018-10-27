@@ -165,6 +165,20 @@ class InWheelCtx(InWheel):
         self.wheel_path = super(InWheelCtx, self).__enter__()
         return self
 
+    def iter_files(self):
+        record_names = glob.glob(
+            os.path.join(self.wheel_path, '*.dist-info/RECORD')
+        )
+        if len(record_names) != 1:
+            raise WheelToolsError("Should be exactly one `*.dist_info` directory")
+
+        record_path = record_names[0]
+        with _open_for_csv(record_path, 'r') as record_file:
+            reader = csv.reader(record_file)
+            for row in reader:
+                filename = row[0]
+                yield filename
+
 
 def _get_wheelinfo_name(wheelfile):
     # Work round wheel API compatibility
