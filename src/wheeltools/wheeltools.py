@@ -69,7 +69,7 @@ def rewrite_record(bdist_dir):
         os.unlink(sig_path)
 
     def walk():
-        for dir, dirs, files in os.walk(bdist_dir):
+        for dir, _, files in os.walk(bdist_dir):
             for f in files:
                 yield pjoin(dir, f)
 
@@ -125,7 +125,7 @@ class InWheel(InTemporaryDirectory):
         return super(InWheel, self).__enter__()
 
     def __exit__(self, exc, value, tb):
-        if not self.out_wheel is None:
+        if self.out_wheel is not None:
             rewrite_record(self.name)
             dir2zip(self.name, self.out_wheel)
         return super(InWheel, self).__exit__(exc, value, tb)

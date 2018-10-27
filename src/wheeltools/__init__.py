@@ -3,7 +3,7 @@
 Tools that aren't specific to delocate or auditwheel.
 """
 
-from .wheeltools import *
+from .wheeltools import *  # noqa: F401,F403
 
 try:
     from ._version import version as __version__

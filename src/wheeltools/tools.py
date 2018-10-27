@@ -224,7 +224,7 @@ def get_install_names(filename):
         return ()
     names = tuple(parse_install_name(line)[0] for line in lines[1:])
     install_id = get_install_id(filename)
-    if not install_id is None:
+    if install_id is not None:
         assert names[0] == install_id
         return names[1:]
     return names
@@ -251,7 +251,8 @@ def get_install_id(filename):
     if len(lines) == 1:
         return None
     if len(lines) != 2:
-        raise InstallNameError("Unexpected otool output " + out)
+        out = "\n".join(lines)
+        raise InstallNameError("Unexpected otool output:\n" + out)
     return lines[1].strip()
 
 
@@ -379,7 +380,7 @@ def dir2zip(in_dir, zip_fname):
         Filename of zip archive to write
     """
     z = zipfile.ZipFile(zip_fname, "w", compression=zipfile.ZIP_DEFLATED)
-    for root, dirs, files in os.walk(in_dir):
+    for root, _, files in os.walk(in_dir):
         for file in files:
             in_fname = pjoin(root, file)
             in_stat = os.stat(in_fname)
@@ -388,7 +389,8 @@ def dir2zip(in_dir, zip_fname):
             info.filename = relpath(in_fname, in_dir)
             # Set time from modification time
             info.date_time = time.localtime(in_stat.st_mtime)
-            # See https://stackoverflow.com/questions/434641/how-do-i-set-permissions-attributes-on-a-file-in-a-zip-file-using-pythons-zip/48435482#48435482
+            # See https://stackoverflow.com/questions/434641/how-do-i-set-permissions-
+            # attributes-on-a-file-in-a-zip-file-using-pythons-zip/48435482#48435482
             # Also set regular file permissions
             perms = stat.S_IMODE(in_stat.st_mode) | stat.S_IFREG
             info.external_attr = perms << 16
@@ -476,7 +478,7 @@ def get_archs(libname):
     ):
         reggie = re.compile(reggie)
         match = reggie.match(line)
-        if not match is None:
+        if match is not None:
             return frozenset(match.groups()[0].split(" "))
     raise ValueError("Unexpected output: '{}' for {}".format(stdout, libname))
 
