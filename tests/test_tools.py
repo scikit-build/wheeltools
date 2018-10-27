@@ -1,6 +1,7 @@
 """ Test tools module """
 from __future__ import division, print_function
 
+import sys
 import os
 from os.path import join as pjoin, dirname
 import stat
@@ -26,8 +27,10 @@ from wheeltools.tools import (
 from wheeltools.tmpdirs import InTemporaryDirectory
 
 from .pytest_tools import assert_true, assert_false, assert_equal, assert_raises
+import pytest
 
 DATA_PATH = pjoin(dirname(__file__), "data")
+IS_DARWIN = sys.platform == "darwin"
 LIB32 = pjoin(DATA_PATH, "liba32.dylib")
 LIB64 = pjoin(DATA_PATH, "liba.dylib")
 LIBBOTH = pjoin(DATA_PATH, "liba_both.dylib")
@@ -203,6 +206,7 @@ def test_cmp_contents():
         assert_false(cmp_contents("first", "fourth"))
 
 
+@pytest.mark.skipif(not IS_DARWIN, reason="get_archs only supported on macOS")
 def test_get_archs_fuse():
     # Test routine to get architecture types from file
     assert_equal(get_archs(LIB32), ARCH_32)
@@ -223,6 +227,7 @@ def test_get_archs_fuse():
         assert_raises(RuntimeError, lipo_fuse, "libcopy64", LIB64, "yetanother")
 
 
+@pytest.mark.skipif(not IS_DARWIN, reason="validate_signature only supported on macOS")
 def test_validate_signature():
     # Fully test the validate_signature tool
     def check_signature(filename):
