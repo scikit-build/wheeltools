@@ -45,6 +45,4 @@ install:
 
 script:
   - echo $PWD
-  - mkdir tmp_test_dir
-  - cd tmp_test_dir
-  - pytest --pyargs wheeltools
+  - pytest
