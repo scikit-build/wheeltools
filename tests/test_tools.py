@@ -145,7 +145,7 @@ def test_zip2():
         zip_fname = pjoin("zips", "my.zip")
         dir2zip("a_dir", zip_fname)
         zip2dir(zip_fname, "another_dir")
-        assert_equal(os.listdir("another_dir"), ["file1.txt", "s_dir"])
+        assert_equal(sorted(os.listdir("another_dir")), ["file1.txt", "s_dir"])
         assert_equal(os.listdir(pjoin("another_dir", "s_dir")), ["file2.txt"])
         # Try zipping from a subdirectory, with a different extension
         dir2zip(s_dir, "another.ext")
