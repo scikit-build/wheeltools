@@ -26,6 +26,15 @@ from .tmpdirs import InTemporaryDirectory
 from .tools import unique_by_index, zip2dir, dir2zip, open_rw
 
 
+__all__ = [
+    "add_platforms",
+    "rewrite_record",
+    "InWheel",
+    "InWheelCtx",
+    "WheelToolsError",
+]
+
+
 class WheelToolsError(Exception):
     pass
 
