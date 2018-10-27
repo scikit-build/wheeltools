@@ -6,12 +6,14 @@ from os.path import join as pjoin, dirname
 import stat
 import shutil
 
-from ..tools import (back_tick, unique_by_index, ensure_writable, chmod_perms,
-                     ensure_permissions, zip2dir, dir2zip, find_package_dirs,
-                     cmp_contents, get_archs, lipo_fuse, replace_signature,
-                     validate_signature, add_rpath)
+from wheeltools.tools import (
+    back_tick, unique_by_index, ensure_writable, chmod_perms,
+    ensure_permissions, zip2dir, dir2zip, find_package_dirs,
+    cmp_contents, get_archs, lipo_fuse, replace_signature,
+    validate_signature, add_rpath
+)
 
-from ..tmpdirs import InTemporaryDirectory
+from wheeltools.tmpdirs import InTemporaryDirectory
 
 from .pytest_tools import assert_true, assert_false, assert_equal, assert_raises
 

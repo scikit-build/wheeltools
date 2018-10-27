@@ -4,7 +4,7 @@ from __future__ import division, print_function, absolute_import
 from os import getcwd
 from os.path import realpath, abspath, dirname, isfile
 
-from ..tmpdirs import InGivenDirectory
+from wheeltools.tmpdirs import InGivenDirectory
 
 from .pytest_tools import assert_true, assert_equal
 

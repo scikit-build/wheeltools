@@ -13,10 +13,16 @@ try:
 except ImportError:  # As of Wheel 0.32.0
     from wheel.wheelfile import WheelFile
 
-from ..wheeltools import (rewrite_record, InWheel, InWheelCtx, WheelToolsError,
-                          add_platforms, _get_wheelinfo_name)
-from ..tmpdirs import InTemporaryDirectory
-from ..tools import zip2dir, open_readable
+from wheeltools.wheeltools import (
+    rewrite_record,
+    InWheel,
+    InWheelCtx,
+    WheelToolsError,
+    add_platforms,
+    _get_wheelinfo_name,
+)
+from wheeltools.tmpdirs import InTemporaryDirectory
+from wheeltools.tools import zip2dir, open_readable
 
 from .pytest_tools import (assert_true, assert_false, assert_raises, assert_equal)
 
