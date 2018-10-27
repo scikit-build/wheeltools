@@ -2,7 +2,10 @@
 """
 
 import os
-from os.path import join as pjoin, exists, isfile, basename, realpath, splitext
+from os.path import (
+    join as pjoin, exists, isfile, basename, realpath, splitext, dirname
+)
+from glob import glob
 import shutil
 
 try:
@@ -17,7 +20,23 @@ from ..tools import zip2dir, open_readable
 
 from .pytest_tools import (assert_true, assert_false, assert_raises, assert_equal)
 
-from .test_wheelies import PURE_WHEEL, PLAT_WHEEL
+
+DATA_PATH = pjoin(dirname(__file__), 'data')
+
+
+def _collect_wheel(globber):
+    glob_path = pjoin(DATA_PATH, globber)
+    wheels = glob(glob_path)
+    if len(wheels) == 0:
+        raise ValueError("No wheels for glob {}".format(glob_path))
+    elif len(wheels) > 1:
+        raise ValueError("Too many wheels for glob {} ({})".format(
+            glob_path, '; '.join(wheels)))
+    return wheels[0]
+
+
+PLAT_WHEEL = _collect_wheel('fakepkg1-1.0-cp*.whl')
+PURE_WHEEL = _collect_wheel('fakepkg2-1.0-py*.whl')
 
 
 def assert_record_equal(record_orig, record_new):
