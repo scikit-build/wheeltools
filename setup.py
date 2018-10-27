@@ -18,7 +18,7 @@ setup(
     author_email="matthew.brett@gmail.com",
     url="https://github.com/anthrotype/wheeltools",
     package_dir={"": "src"},
-    packages=find_packages(),
+    packages=find_packages("src"),
     install_requires=["wheel"],
     setup_requires=["setuptools_scm"],
     license="BSD license",
