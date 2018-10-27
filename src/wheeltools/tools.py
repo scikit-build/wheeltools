@@ -400,6 +400,12 @@ def dir2zip(in_dir, zip_fname):
     z.close()
 
 
+def tarbz2todir(tarbz2_fname, out_dir):
+    """Extract `tarbz2_fname` into output directory `out_dir`
+    """
+    back_tick(['tar', 'xjf', tarbz2_fname, '-C', out_dir])
+
+
 def find_package_dirs(root_path):
     """ Find python package directories in directory `root_path`
 
