@@ -51,21 +51,24 @@ def back_tick(cmd, ret_err=False, as_str=True, raise_err=None):
     proc = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=not cmd_is_seq)
     out, err = proc.communicate()
     retcode = proc.returncode
-    cmd_str = ' '.join(cmd) if cmd_is_seq else cmd
+    cmd_str = " ".join(cmd) if cmd_is_seq else cmd
     if retcode is None:
         proc.terminate()
-        raise RuntimeError(cmd_str + ' process did not terminate')
+        raise RuntimeError(cmd_str + " process did not terminate")
     if raise_err and retcode != 0:
-        raise RuntimeError('{0} returned code {1} with error {2}'.format(
-                           cmd_str, retcode, err.decode('latin-1')))
+        raise RuntimeError(
+            "{} returned code {} with error {}".format(
+                cmd_str, retcode, err.decode("latin-1")
+            )
+        )
     out = out.strip()
     if as_str:
-        out = out.decode('latin-1')
+        out = out.decode("latin-1")
     if not ret_err:
         return out
     err = err.strip()
     if as_str:
-        err = err.decode('latin-1')
+        err = err.decode("latin-1")
     return out, err
 
 
@@ -112,6 +115,7 @@ def ensure_permissions(mode_flags=stat.S_IWUSR):
                 # restore original permissions
                 if not m & mode_flags:
                     os.chmod(filename, m)
+
         return modify
 
     return decorator
@@ -127,8 +131,11 @@ open_rw = ensure_permissions(stat.S_IRUSR | stat.S_IWUSR)(open)
 ensure_writable = ensure_permissions()
 
 
-IN_RE = re.compile(r"(.*) \(compatibility version (\d+\.\d+\.\d+), "
-                   r"current version (\d+\.\d+\.\d+)\)")
+IN_RE = re.compile(
+    r"(.*) \(compatibility version (\d+\.\d+\.\d+), "
+    r"current version (\d+\.\d+\.\d+)\)"
+)
+
 
 def parse_install_name(line):
     """ Parse a line of install name output
@@ -156,17 +163,17 @@ def parse_install_name(line):
 RE_PERM_DEN = re.compile(r"Permission denied[.) ]*$")
 BAD_OBJECT_TESTS = [
     # otool version cctools-862
-    lambda s : 'is not an object file' in s,
+    lambda s: "is not an object file" in s,
     # cctools-862 (.ico)
-    lambda s : 'The end of the file was unexpectedly encountered' in s,
+    lambda s: "The end of the file was unexpectedly encountered" in s,
     # cctools-895
-    lambda s : 'The file was not recognized as a valid object file' in s,
+    lambda s: "The file was not recognized as a valid object file" in s,
     # 895 binary file
-    lambda s: 'Invalid data was encountered while parsing the file' in s,
+    lambda s: "Invalid data was encountered while parsing the file" in s,
     # cctools-900
-    lambda s : 'Object is not a Mach-O file type' in s,
+    lambda s: "Object is not a Mach-O file type" in s,
     # File may not have read permissions
-    lambda s : RE_PERM_DEN.search(s) is not None
+    lambda s: RE_PERM_DEN.search(s) is not None,
 ]
 
 
@@ -174,7 +181,7 @@ def _cmd_out_err(cmd):
     # Run command, return stdout or stderr if stdout is empty
     out, err = back_tick(cmd, ret_err=True)
     out = err if not len(out) else out
-    return out.split('\n')
+    return out.split("\n")
 
 
 def _line0_says_object(line0, filename):
@@ -182,16 +189,17 @@ def _line0_says_object(line0, filename):
     for test in BAD_OBJECT_TESTS:
         if test(line0):
             return False
-    if line0.startswith('Archive :'):
+    if line0.startswith("Archive :"):
         # nothing to do for static libs
         return False
-    if not line0.startswith(filename + ':'):
-        raise InstallNameError('Unexpected first line: ' + line0)
-    further_report = line0[len(filename) + 1:]
-    if further_report == '':
+    if not line0.startswith(filename + ":"):
+        raise InstallNameError("Unexpected first line: " + line0)
+    further_report = line0[len(filename) + 1 :]
+    if further_report == "":
         return True
     raise InstallNameError(
-        'Too ignorant to know what "{0}" means'.format(further_report))
+        'Too ignorant to know what "{}" means'.format(further_report)
+    )
 
 
 def get_install_names(filename):
@@ -211,7 +219,7 @@ def get_install_names(filename):
     install_names : tuple
         tuple of install names for library `filename`
     """
-    lines = _cmd_out_err(['otool', '-L', filename])
+    lines = _cmd_out_err(["otool", "-L", filename])
     if not _line0_says_object(lines[0], filename):
         return ()
     names = tuple(parse_install_name(line)[0] for line in lines[1:])
@@ -237,13 +245,13 @@ def get_install_id(filename):
     install_id : str
         install id of library `filename`, or None if no install id
     """
-    lines = _cmd_out_err(['otool', '-D', filename])
+    lines = _cmd_out_err(["otool", "-D", filename])
     if not _line0_says_object(lines[0], filename):
         return None
     if len(lines) == 1:
         return None
     if len(lines) != 2:
-        raise InstallNameError('Unexpected otool output ' + out)
+        raise InstallNameError("Unexpected otool output " + out)
     return lines[1].strip()
 
 
@@ -262,9 +270,10 @@ def set_install_name(filename, oldname, newname):
     """
     names = get_install_names(filename)
     if oldname not in names:
-        raise InstallNameError('{0} not in install names for {1}'.format(
-            oldname, filename))
-    back_tick(['install_name_tool', '-change', oldname, newname, filename])
+        raise InstallNameError(
+            "{} not in install names for {}".format(oldname, filename)
+        )
+    back_tick(["install_name_tool", "-change", oldname, newname, filename])
 
 
 @ensure_writable
@@ -283,11 +292,12 @@ def set_install_id(filename, install_id):
     RuntimeError if `filename` has not install id
     """
     if get_install_id(filename) is None:
-        raise InstallNameError('{0} has no install id'.format(filename))
-    back_tick(['install_name_tool', '-id', install_id, filename])
+        raise InstallNameError("{} has no install id".format(filename))
+    back_tick(["install_name_tool", "-id", install_id, filename])
 
 
 RPATH_RE = re.compile(r"path (.*) \(offset \d+\)")
+
 
 def get_rpaths(filename):
     """ Return a tuple of rpaths from the library `filename`
@@ -305,7 +315,7 @@ def get_rpaths(filename):
         rpath paths in `filename`
     """
     try:
-        lines = _cmd_out_err(['otool', '-l', filename])
+        lines = _cmd_out_err(["otool", "-l", filename])
     except RuntimeError:
         return ()
     if not _line0_says_object(lines[0], filename):
@@ -316,10 +326,10 @@ def get_rpaths(filename):
     while line_no < len(lines):
         line = lines[line_no]
         line_no += 1
-        if line != 'cmd LC_RPATH':
+        if line != "cmd LC_RPATH":
             continue
-        cmdsize, path = lines[line_no:line_no+2]
-        assert cmdsize.startswith('cmdsize ')
+        cmdsize, path = lines[line_no : line_no + 2]
+        assert cmdsize.startswith("cmdsize ")
         paths.append(RPATH_RE.match(path).groups()[0])
         line_no += 2
     return tuple(paths)
@@ -336,7 +346,7 @@ def add_rpath(filename, newpath):
     newpath : str
         rpath to add
     """
-    back_tick(['install_name_tool', '-add_rpath', newpath, filename])
+    back_tick(["install_name_tool", "-add_rpath", newpath, filename])
 
 
 def zip2dir(zip_fname, out_dir):
@@ -351,7 +361,7 @@ def zip2dir(zip_fname, out_dir):
     """
     # Use unzip command rather than zipfile module to preserve permissions
     # http://bugs.python.org/issue15795
-    back_tick(['unzip', '-o', '-d', out_dir, zip_fname])
+    back_tick(["unzip", "-o", "-d", out_dir, zip_fname])
 
 
 def dir2zip(in_dir, zip_fname):
@@ -368,8 +378,7 @@ def dir2zip(in_dir, zip_fname):
     zip_fname : str
         Filename of zip archive to write
     """
-    z = zipfile.ZipFile(zip_fname, 'w',
-                        compression=zipfile.ZIP_DEFLATED)
+    z = zipfile.ZipFile(zip_fname, "w", compression=zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk(in_dir):
         for file in files:
             in_fname = pjoin(root, file)
@@ -383,7 +392,7 @@ def dir2zip(in_dir, zip_fname):
             # Also set regular file permissions
             perms = stat.S_IMODE(in_stat.st_mode) | stat.S_IFREG
             info.external_attr = perms << 16
-            with open_readable(in_fname, 'rb') as fobj:
+            with open_readable(in_fname, "rb") as fobj:
                 contents = fobj.read()
             z.writestr(info, contents, zipfile.ZIP_DEFLATED)
     z.close()
@@ -405,8 +414,8 @@ def find_package_dirs(root_path):
     """
     package_sdirs = set()
     for entry in os.listdir(root_path):
-        fname = entry if root_path == '.' else pjoin(root_path, entry)
-        if isdir(fname) and exists(pjoin(fname, '__init__.py')):
+        fname = entry if root_path == "." else pjoin(root_path, entry)
+        if isdir(fname) and exists(pjoin(fname, "__init__.py")):
             package_sdirs.add(fname)
     return package_sdirs
 
@@ -427,9 +436,9 @@ def cmp_contents(filename1, filename2):
         True if binary contents of `filename1` is same as binary contents of
         `filename2`, False otherwise.
     """
-    with open_readable(filename1, 'rb') as fobj:
+    with open_readable(filename1, "rb") as fobj:
         contents1 = fobj.read()
-    with open_readable(filename2, 'rb') as fobj:
+    with open_readable(filename2, "rb") as fobj:
         contents2 = fobj.read()
     return contents1 == contents2
 
@@ -451,25 +460,25 @@ def get_archs(libname):
     if not exists(libname):
         raise RuntimeError(libname + " is not a file")
     try:
-        stdout = back_tick(['lipo', '-info', libname])
+        stdout = back_tick(["lipo", "-info", libname])
     except RuntimeError:
         return frozenset()
-    lines = [line.strip() for line in stdout.split('\n') if line.strip()]
+    lines = [line.strip() for line in stdout.split("\n") if line.strip()]
     # For some reason, output from lipo -info on .a file generates this line
-    if lines[0] == "input file {0} is not a fat file".format(libname):
+    if lines[0] == "input file {} is not a fat file".format(libname):
         line = lines[1]
     else:
         assert len(lines) == 1
         line = lines[0]
     for reggie in (
-        'Non-fat file: {0} is architecture: (.*)'.format(libname),
-        'Architectures in the fat file: {0} are: (.*)'.format(libname)):
+        "Non-fat file: {} is architecture: (.*)".format(libname),
+        "Architectures in the fat file: {} are: (.*)".format(libname),
+    ):
         reggie = re.compile(reggie)
         match = reggie.match(line)
         if not match is None:
-            return frozenset(match.groups()[0].split(' '))
-    raise ValueError("Unexpected output: '{0}' for {1}".format(
-        stdout, libname))
+            return frozenset(match.groups()[0].split(" "))
+    raise ValueError("Unexpected output: '{}' for {}".format(stdout, libname))
 
 
 def lipo_fuse(in_fname1, in_fname2, out_fname):
@@ -484,9 +493,7 @@ def lipo_fuse(in_fname1, in_fname2, out_fname):
     out_fname : str
         filename to which to write new fused library
     """
-    return back_tick(['lipo', '-create',
-                      in_fname1, in_fname2,
-                      '-output', out_fname])
+    return back_tick(["lipo", "-create", in_fname1, in_fname2, "-output", out_fname])
 
 
 @ensure_writable
@@ -502,8 +509,7 @@ def replace_signature(filename, identity):
     identity : str
         The signing identity to use.
     """
-    back_tick(['codesign', '--force', '--sign', identity, filename],
-              raise_err=True)
+    back_tick(["codesign", "--force", "--sign", identity, filename], raise_err=True)
 
 
 def validate_signature(filename):
@@ -519,12 +525,13 @@ def validate_signature(filename):
     filename : str
         Filepath to a binary file
     """
-    out, err = back_tick(['codesign', '--verify', filename],
-                         ret_err=True, as_str=True, raise_err=False)
+    out, err = back_tick(
+        ["codesign", "--verify", filename], ret_err=True, as_str=True, raise_err=False
+    )
     if not err:
-        return # The existing signature is valid
-    if 'code object is not signed at all' in err:
-        return # File has no signature, and adding a new one isn't necessary
+        return  # The existing signature is valid
+    if "code object is not signed at all" in err:
+        return  # File has no signature, and adding a new one isn't necessary
 
     # This file's signature is invalid and needs to be replaced
-    replace_signature(filename, '-') # Replace with an ad-hoc signature
+    replace_signature(filename, "-")  # Replace with an ad-hoc signature

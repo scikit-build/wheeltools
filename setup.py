@@ -21,12 +21,7 @@ setup(
     packages=find_packages("src"),
     install_requires=["wheel"],
     setup_requires=["setuptools_scm"],
-    extras_require={
-        "testing": [
-            "pytest >= 3.0.0, <4",
-            "pytest-cov >= 2.5.1, <3",
-        ]
-    },
+    extras_require={"testing": ["pytest >= 3.0.0, <4", "pytest-cov >= 2.5.1, <3"]},
     license="BSD license",
     classifiers=[
         "Intended Audience :: Developers",

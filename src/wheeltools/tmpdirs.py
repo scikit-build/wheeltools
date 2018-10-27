@@ -6,8 +6,8 @@
 #   copyright and license terms.
 #
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
-''' Contexts for *with* statement providing temporary directories
-'''
+""" Contexts for *with* statement providing temporary directories
+"""
 from __future__ import division, print_function, absolute_import
 import os
 import shutil
@@ -31,6 +31,7 @@ class TemporaryDirectory(object):
     >>> os.path.exists(tmpdir)
     False
     """
+
     def __init__(self, suffix="", prefix=template, dir=None):
         self.name = mkdtemp(suffix, prefix, dir)
         self._closed = False
@@ -49,7 +50,7 @@ class TemporaryDirectory(object):
 
 
 class InTemporaryDirectory(TemporaryDirectory):
-    ''' Create, return, and change directory to a temporary directory
+    """ Create, return, and change directory to a temporary directory
 
     Examples
     --------
@@ -63,7 +64,8 @@ class InTemporaryDirectory(TemporaryDirectory):
     False
     >>> os.getcwd() == my_cwd
     True
-    '''
+    """
+
     def __enter__(self):
         self._pwd = os.getcwd()
         os.chdir(self.name)
@@ -72,7 +74,6 @@ class InTemporaryDirectory(TemporaryDirectory):
     def __exit__(self, exc, value, tb):
         os.chdir(self._pwd)
         return super(InTemporaryDirectory, self).__exit__(exc, value, tb)
-
 
 
 class InGivenDirectory(object):
@@ -98,6 +99,7 @@ class InGivenDirectory(object):
     fix, and finally replace ``InGivenDirectory`` with ``InTemporaryDirectory``
     again.
     """
+
     def __init__(self, path=None):
         """ Initialize directory context manager
 
