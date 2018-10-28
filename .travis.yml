@@ -18,6 +18,11 @@ matrix:
       language: generic
       env: BUILD_WHEELS=1
 
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.cache/pre-commit
+
 install:
   - |
     if [ -n "$BUILD_WHEELS" ]; then
