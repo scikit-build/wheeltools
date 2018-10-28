@@ -51,6 +51,7 @@ script:
   - tox
 
 after_success:
+  - tox -e codecov
   - |
     if [ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_REPO_SLUG" == "anthrotype/wheeltools" ] && [ "$TRAVIS_PYTHON_VERSION" == "3.6" ]; then
       pip install --upgrade pip setuptools twine
