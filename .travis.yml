@@ -38,7 +38,8 @@ install:
         if [ -e "$inst_cmd" ]; then
             sh "$inst_cmd"
         fi
-        curl https://asottile.github.io/get-virtualenv.py | $PYTHON_EXE - .venv/
+        $PYTHON_EXE -m pip install virtualenv
+        $PYTHON_EXE -m virtualenv .venv/
         source .venv/bin/activate
       fi
       pip install wheel cython
