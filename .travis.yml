@@ -1,53 +1,45 @@
-language:
-  - objective-c
-
+language: python
 env:
   global:
-    - VERSION="3.5.3"
-    - WHEEL_SPEC="wheel"
     - TOXENV="py"
-
-# Default OSX (xcode image) is 10.11 (xcode 7.3.1) as of 2017-05-02
-# See: https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
+    - TWINE_USERNAME="anthrotype"
+    - secure: MVvXcRn1E83gNSt1jTK5vigmbBtjS8MKQtU6SdU7NwlkR85Bdc1AaT60Nikxw55tdbLiDnHcqzfNAauIRBYux+n4XTu58B6r4rSBFTP7qBMAL6PxcMwF1CHRB3n8ZYsddiJUqwo3shJ5WkZVjqAG/kRfd84kWEG7FXYEZEyF4VXNGIQ1o1NrgP+gyD6p7fgv3P7GTTe9/UTEwC3IZSVfdIdkof1NAEyuRr3bUyoMdm9psC9eobex7cA5L70Q6DgPSH8KlGPXJ45xz64B8+0ICdXeULmak/eDAqoz5APsGOpewaL3wEJxdhb3n0tJN3FGTPkwRRrGYGlY5VXld8jY1XmAW+l4mlODQvbPK8NyM4sS67WetH7yCj35YmRhKQAgKsTIqY5paPiyf3sdWcb8FGyoH1M+hfl/2jywUSXGCwzajjfxcs0WCRpsp+bFe6sJBu4gx3Pc5tFFr//jMTp1LjStnZYKLDq0zABmrKqa9TeZUX86ryqxstbdYIAdnok7PONZohx7jK5UwKoqAE9DZbp7Xc+cqrLdmBXCYZ7ssZuUoFO9kLlhUxUsfQsk6721SbLleI1cU+RV7Fxm5QCLxX+51ltqz1eS0pL5WJculCY/1GmFY6aMT8Q55iC8tbrjQGzMNBWEE16V5A9feOafbvaWuyz7LdGwL3PulfVg4d8=
 
 matrix:
   include:
-      - env:
-          - VERSION="3.7.1"
-          - TOXENV="fix_lint,py"
-      - env: VERSION="2.7.13"
-      - env: VERSION="3.4.4"
-      - env: VERSION="3.6.1"
-      # Wheel API changes
-      - env:
-          - WHEEL_SPEC="wheel==0.31.1"
-          - TOXENV="py-wheel0311"
-      # OS X 10.9
-      - osx_image: beta-xcode6.1
-      # Xcode 9.1 OS X 10.12
-      - osx_image: xcode9.1
-      # Xcode 8.3.2 OS X 10.12
-      - osx_image: xcode8.3
-      # Xcode 8gm OS X 10.11
-      - osx_image: xcode8
-      # Default Xcode 7.3.1 OS X 10.11
-      - osx_image: xcode7.3
-      # Xcode 6.4 OS X 10.10
-      - osx_image: xcode6.4
-      - env:
-          - VERSION=2.7.13
-          - BUILD_WHEELS=1
+    - python: 3.7
+      dist: xenial
+      env: TOXENV="fix_lint,py"
+    - python: 2.7
+    - python: 3.4
+    - python: 3.5
+    - python: 3.6
+    - os: osx
+      language: generic
+      env: BUILD_WHEELS=1
 
 install:
-  - set -vx  # echo commands
-  - source multibuild/osx_utils.sh
-  - get_macpython_environment $VERSION venv
-  - if [ -n "$BUILD_WHEELS" ]; then
-        pip install $WHEEL_SPEC cython;
-        (cd wheel_makers && ./make_wheels.sh);
+  - |
+    if [ -n "$BUILD_WHEELS" ]; then
+      if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+        # bootstrap virtualenv on the system python
+        curl -O https://asottile.github.io/get-virtualenv.py
+        python get-virtualenv.py .venv/
+        source .venv/bin/activate
+      fi
+      pip install wheel cython
+      (cd wheel_makers && ./make_wheels.sh)
     fi
   - pip install tox
 
 script:
-  - echo $PWD
   - tox
+
+after_success:
+  - |
+    if [ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_REPO_SLUG" == "anthrotype/wheeltools" ] && [ "$TRAVIS_PYTHON_VERSION" == "3.6" ]; then
+      pip install --upgrade pip setuptools twine
+      python setup.py sdist
+      pip wheel --no-deps --wheel-dir dist .
+      twine upload dist/*.whl dist/*.zip
+    fi
