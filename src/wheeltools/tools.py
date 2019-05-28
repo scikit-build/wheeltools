@@ -162,7 +162,7 @@ def dir2zip(in_dir, zip_fname):
             in_stat = os.stat(in_fname)
             # Preserve file permissions, but allow copy
             info = zipfile.ZipInfo(in_fname)
-            info.filename = relpath(in_fname, in_dir)
+            info.filename = relpath(in_fname, in_dir).replace("\\", "/")
             # Set time from modification time
             info.date_time = time.localtime(in_stat.st_mtime)
             # See https://stackoverflow.com/questions/434641/how-do-i-set-permissions-
